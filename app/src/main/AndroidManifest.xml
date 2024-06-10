@@ -5,6 +5,12 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
+<!--    TODO: FIND A WAY TO TEST HEALTH DATA-->
+<!--    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>-->
+<!--    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE"/>-->
+<!--    <uses-permission android:name="android.permission.health.READ_STEPS"/>-->
+<!--    <uses-permission android:name="android.permission.health.WRITE_STEPS"/>-->
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -37,3 +43,4 @@
     </application>
 
 </manifest>
+

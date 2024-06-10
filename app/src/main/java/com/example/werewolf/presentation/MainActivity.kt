@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -75,8 +77,9 @@ fun MoonPhaseText(modifier: Modifier) {
     Text(
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.primary,
-        text = moonPhase()
+        color = Color.White,
+        text = moonPhase(),
+        fontWeight = FontWeight.Bold
     )
 }
 
@@ -92,7 +95,7 @@ fun DisplayGif(
         .build()
     Image(
         painter = rememberAsyncImagePainter(
-            ImageRequest.Builder(context).data(data = R.drawable.cute_dog_gif).apply(block = {
+            ImageRequest.Builder(context).data(data = selectAnimation()).apply(block = {
                 size(Size.ORIGINAL)
             }).build(), imageLoader = imageLoader
         ),

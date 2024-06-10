@@ -52,6 +52,7 @@ dependencies {
     implementation("dev.jamesyox:kastro:0.2.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation ("io.coil-kt:coil-gif:2.1.0")
+//    implementation ("androidx.health.connect:connect-client:1.1.0-alpha02")
     implementation(libs.play.services.wearable)
     implementation(platform(libs.compose.bom))
     implementation(libs.ui)
