@@ -2,20 +2,29 @@ package com.example.werewolf.presentation
 
 import com.example.werewolf.R
 
+private val animationsMap: MutableMap<String, List<Int>> = mutableMapOf(
+    "Waning Crescent" to listOf(R.drawable.fighting2, R.drawable.moon_phases),
+    "Waning Gibbous" to listOf(R.drawable.lost, R.drawable.moon_phases),
+    "Waxing Gibbous" to listOf(R.drawable.won1, R.drawable.moon_phases),
+    "Waxing Crescent" to listOf(R.drawable.training1, R.drawable.moon_phases),
+    "New Moon" to listOf(R.drawable.sleeping1, R.drawable.moon_phases),
+    "Full Moon" to listOf(R.drawable.won1, R.drawable.moon_phases),
+    "First Quarter" to listOf(R.drawable.lost, R.drawable.moon_phases),
+    "Third Quarter" to listOf(R.drawable.fighting_animation, R.drawable.moon_phases),
+    "Default" to listOf(R.drawable.won1, R.drawable.moon_phases)
+)
+
+public var index = 0
+
 fun selectAnimation() : Int {
     val moonPhase = moonPhase()
+    return animationsMap[moonPhase]?.get(index) ?: animationsMap["Default"]?.get(index) ?: animationsMap["Default"]!![index]
+}
 
-    val animation = when (moonPhase) {
-        "Waning Crescent" -> R.drawable.fighting_animation
-        "Waning Gibbous" -> R.drawable.lost
-        "Waxing Gibbous" -> R.drawable.won1
-        "Waxing Crescent" -> R.drawable.eating1
-        "New Moon" -> R.drawable.sleeping1
-        "Full Moon" -> R.drawable.lost
-        "First Quarter" -> R.drawable.training1
-        "Third Quarter" -> R.drawable.training2
-        else -> {R.drawable.fighting2}
+fun updateAnimation() {
+    if(index == 1){
+        index = 0
+    } else {
+        index++
     }
-
-    return animation
 }

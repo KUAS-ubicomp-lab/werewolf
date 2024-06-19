@@ -7,10 +7,12 @@
 package com.example.werewolf.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,14 +37,20 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import coil.size.Size
-import com.example.werewolf.R
 import com.example.werewolf.presentation.theme.WerewolfTheme
+import com.example.werewolf.R
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+
 
         setTheme(android.R.style.Theme_DeviceDefault)
 
@@ -51,6 +59,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
+
+
 
 @Composable
 fun WearApp() {
@@ -85,7 +97,7 @@ fun MoonPhaseText(modifier: Modifier) {
 
 @Composable
 fun DisplayGif(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
     ) {
     val context = LocalContext.current
     val imageLoader = ImageLoader.Builder(context)
@@ -93,14 +105,20 @@ fun DisplayGif(
             add(ImageDecoderDecoder.Factory())
         }
         .build()
+
+    var selectedAnimation by remember { mutableStateOf<Int>(selectAnimation()) }
+
     Image(
         painter = rememberAsyncImagePainter(
-            ImageRequest.Builder(context).data(data = selectAnimation()).apply(block = {
+            ImageRequest.Builder(context).data(data = selectedAnimation).apply(block = {
                 size(Size.ORIGINAL)
             }).build(), imageLoader = imageLoader
         ),
         contentDescription = null,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().clickable {
+            updateAnimation()
+            selectedAnimation = selectAnimation()
+        },
     )
 }
 
