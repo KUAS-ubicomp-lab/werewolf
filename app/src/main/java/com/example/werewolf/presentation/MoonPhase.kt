@@ -1,5 +1,6 @@
 package com.example.werewolf.presentation
 
+import android.util.Log
 import dev.jamesyox.kastro.luna.LunarPhase
 import dev.jamesyox.kastro.luna.calculateLunarState
 import kotlinx.datetime.TimeZone
@@ -7,6 +8,8 @@ import kotlinx.datetime.toJavaZoneId
 import kotlinx.datetime.toKotlinInstant
 import kotlinx.datetime.toLocalDateTime
 import java.time.LocalDateTime
+
+private var beginAngle = 0.0;
 
 fun moonPhase() : String {
     var stringPhase = ""
@@ -22,7 +25,7 @@ fun moonPhase() : String {
     val beginPhase = beginInstant.calculateLunarState(35.0, 135.0).phase
     val endPhase = endInstant.calculateLunarState(35.0, 135.0).phase
 
-    val beginAngle = beginPhase.midpointAngle
+    beginAngle = beginPhase.midpointAngle
     val endAngle = endPhase.midpointAngle
 
     if(beginAngle > endAngle){
@@ -42,4 +45,15 @@ fun moonPhase() : String {
         }
     }
     return stringPhase
+}
+
+fun daysUntilFullMoon() : Int {
+    var days = 0.0
+    Log.d("angle", beginAngle.toString())
+    if(beginAngle > 180){
+        days = ((beginAngle - 180) / 12.2) + 15.0
+    }else{
+        days = (180 - beginAngle) / 12.2
+    }
+    return days.toInt()
 }

@@ -14,17 +14,12 @@ private val animationsMap: MutableMap<String, List<Int>> = mutableMapOf(
     "Default" to listOf(R.drawable.won1, R.drawable.moon_phases)
 )
 
-public var index = 0
-
-fun selectAnimation() : Int {
+fun selectAnimation(selection: Boolean) : Int {
     val moonPhase = moonPhase()
-    return animationsMap[moonPhase]?.get(index) ?: animationsMap["Default"]?.get(index) ?: animationsMap["Default"]!![index]
-}
-
-fun updateAnimation() {
-    if(index == 1){
-        index = 0
-    } else {
-        index++
+    if(selection){
+        return animationsMap[moonPhase]?.get(0) ?: animationsMap["Default"]?.get(0) ?: animationsMap["Default"]!![0]
+    }else {
+        return animationsMap[moonPhase]?.get(1) ?: animationsMap["Default"]?.get(1) ?: animationsMap["Default"]!![1]
     }
 }
+

@@ -66,38 +66,45 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WearApp() {
+
+    var childState by remember { mutableStateOf<Boolean>(true) }
     WerewolfTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colors.background),
+                .background(MaterialTheme.colors.background).clickable { childState = !childState },
             contentAlignment = Alignment.Center
         ) {
             TimeText()
-            MoonPhaseText(modifier = Modifier.align(Alignment.TopCenter).offset(0.dp, 40.dp))
+            MoonPhaseText(modifier = Modifier.align(Alignment.TopCenter).offset(0.dp, 40.dp), state = childState)
             DisplayGif(modifier = Modifier
                 .size(110.dp)
                 .align(Alignment.BottomCenter)
-                .offset(0.dp, (-10).dp))
+                .offset(0.dp, (-10).dp), state = childState)
 
         }
     }
 }
 
+
+
 @Composable
-fun MoonPhaseText(modifier: Modifier) {
+fun MoonPhaseText(modifier: Modifier, state: Boolean) {
+
+    var selectedText = selectText(selection = state)
+    
     Text(
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         color = Color.White,
-        text = moonPhase(),
+        text = selectedText,
         fontWeight = FontWeight.Bold
     )
 }
 
 @Composable
 fun DisplayGif(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier, state: Boolean
     ) {
     val context = LocalContext.current
     val imageLoader = ImageLoader.Builder(context)
@@ -106,7 +113,7 @@ fun DisplayGif(
         }
         .build()
 
-    var selectedAnimation by remember { mutableStateOf<Int>(selectAnimation()) }
+    val selectedAnimation = selectAnimation(state)
 
     Image(
         painter = rememberAsyncImagePainter(
@@ -115,10 +122,7 @@ fun DisplayGif(
             }).build(), imageLoader = imageLoader
         ),
         contentDescription = null,
-        modifier = modifier.fillMaxWidth().clickable {
-            updateAnimation()
-            selectedAnimation = selectAnimation()
-        },
+        modifier = modifier.fillMaxWidth()
     )
 }
 
