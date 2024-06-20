@@ -4,6 +4,11 @@ fun selectText(selection: Boolean) : String {
     if(selection){
         return moonPhase()
     }else {
-        return daysUntilFullMoon().toString() + " days remaining"
+        if(moonPhase() == "FullMoon"){
+            return "Full Moon!"
+        }else{
+            return daysUntilFullMoon().toString() + " days remaining"
+        }
+
     }
 }
