@@ -8,7 +8,7 @@ private val animationsMap: MutableMap<String, List<Int>> = mutableMapOf(
     "Waxing Gibbous" to listOf(R.drawable.won1, R.drawable.moon_phases),
     "Waxing Crescent" to listOf(R.drawable.training1, R.drawable.moon_phases),
     "New Moon" to listOf(R.drawable.sleeping1, R.drawable.moon_phases),
-    "Full Moon" to listOf(R.drawable.won1, R.drawable.full_moon),
+    "Full Moon" to listOf(R.drawable.fighting_animation, R.drawable.full_moon),
     "First Quarter" to listOf(R.drawable.lost, R.drawable.moon_phases),
     "Third Quarter" to listOf(R.drawable.fighting_animation, R.drawable.moon_phases),
     "Default" to listOf(R.drawable.won1, R.drawable.moon_phases)
