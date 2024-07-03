@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Werewolf"
 include(":app")
+include(":app:devtoolbox")
