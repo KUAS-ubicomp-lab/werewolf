@@ -49,6 +49,7 @@ import com.example.werewolf.R
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_TYPE_NAME_MAP
@@ -96,7 +97,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-
         lifecycleScope.launch {
             val hasHeartRateCapability = healthServicesManager.hasHeartRateCapability()
             Log.i("WearApp", "hasHeartRateCapability: $hasHeartRateCapability")
@@ -125,81 +125,51 @@ class PassiveDataService : PassiveListenerService() {
             val heartRate = dataPoint.value
             Log.i("WearApp", "Received heart rate: $heartRate")
         }
-        Log.i("WearApp", "receiving data")
     }
 }
-
-
 
 
 @Composable
 fun WearApp() {
+    var childState by remember { mutableIntStateOf(0) }
 
-    var childState by remember { mutableStateOf<Boolean>(true) }
     WerewolfTheme {
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background)
-                .clickable { childState = !childState },
+                .clickable { childState++
+                           if(childState > 2){
+                               childState = 0
+                           }
+                           Log.i("Click", "childState: $childState")},
             contentAlignment = Alignment.Center
         ) {
-            TimeText()
-            MoonPhaseText(modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(0.dp, 40.dp), state = childState)
-            DisplayGif(modifier = Modifier
-                .size(110.dp)
-                .align(Alignment.BottomCenter)
-                .offset(0.dp, (-10).dp), state = childState)
 
+            if(childState == 0){
+                PetScreen(modifier = Modifier)
+            } else if (childState == 1){
+                DaysLeftScreen(modifier = Modifier)
+            } else {
+                HealthScreen(modifier = Modifier)
+            }
         }
     }
+
 }
 
 
 
-@Composable
-fun MoonPhaseText(modifier: Modifier, state: Boolean) {
 
-    var selectedText = selectText(selection = state)
-    
-    Text(
-        modifier = modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        color = Color.White,
-        text = selectedText,
-        fontWeight = FontWeight.Bold
-    )
-}
 
-@Composable
-fun DisplayGif(
-    modifier: Modifier = Modifier, state: Boolean
-    ) {
-    val context = LocalContext.current
-    val imageLoader = ImageLoader.Builder(context)
-        .components {
-            add(ImageDecoderDecoder.Factory())
-        }
-        .build()
 
-    val selectedAnimation = selectAnimation(state)
 
-    Image(
-        painter = rememberAsyncImagePainter(
-            ImageRequest.Builder(context).data(data = selectedAnimation).apply(block = {
-                size(Size.ORIGINAL)
-            }).build(), imageLoader = imageLoader
-        ),
-        contentDescription = null,
-        modifier = modifier.fillMaxWidth()
-    )
-}
 
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
-@Composable
-fun DefaultPreview() {
-    WearApp()
-}
+
+
+
+
+
+
+
+
