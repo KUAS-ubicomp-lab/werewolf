@@ -15,3 +15,8 @@
 local.properties
 screenshots
 
+.idea/.name
+.idea/deploymentTargetDropDown.xml
+.idea/misc.xml
+gradle/libs.versions.toml
+.idea/misc.xml
