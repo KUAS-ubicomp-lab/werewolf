@@ -36,7 +36,6 @@ fun DaysLeftScreen(modifier: Modifier){
 
 @Composable
 fun PetScreen(modifier: Modifier){
-//      Text(text = "Pet Screen", color = Color.White)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -65,6 +64,6 @@ fun HealthScreen(modifier: Modifier){
         TimeText()
         DisplayHealthData(modifier = Modifier
             .align(Alignment.TopCenter)
-            .offset(0.dp, 40.dp))
+            .offset(0.dp, 40.dp), heartRateViewModel = ViewModelHolder.heartRateViewModel )
     }
 }

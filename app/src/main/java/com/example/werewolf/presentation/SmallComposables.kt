@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
@@ -46,13 +51,13 @@ fun DisplayMoonGif(modifier: Modifier){
 }
 
 @Composable
-fun DisplayHealthData(modifier: Modifier){
-    var selectedText = "Health Data"
+fun DisplayHealthData(modifier: Modifier, heartRateViewModel: HeartRateViewModel){
+
     Text(
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         color = Color.White,
-        text = selectedText,
+        text = heartRateViewModel.heartRateAverage.value.toString(),
         fontWeight = FontWeight.Bold
     )
 }

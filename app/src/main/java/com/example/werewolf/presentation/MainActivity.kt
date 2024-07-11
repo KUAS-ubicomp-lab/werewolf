@@ -6,80 +6,53 @@
 
 package com.example.werewolf.presentation
 
-import android.content.Context
-import android.health.connect.HealthConnectManager
-import android.health.connect.datatypes.Record
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import coil.ImageLoader
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.ImageDecoderDecoder
-import coil.request.ImageRequest
-import coil.size.Size
-import com.example.werewolf.presentation.theme.WerewolfTheme
-import com.example.werewolf.R
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.impl.converters.datatype.RECORDS_TYPE_NAME_MAP
-import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.readRecord
-import androidx.health.connect.client.records.BodyTemperatureRecord
-import androidx.health.connect.client.request.ReadRecordsRequest
-import androidx.health.connect.client.time.TimeRangeFilter
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.DataPointContainer
-import androidx.health.services.client.data.ExerciseCapabilities
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import androidx.health.services.client.data.ExerciseType
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
-import androidx.wear.compose.foundation.lazy.items
-import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.MaterialTheme
 import com.example.healthserviceslearn.presentation.HealthServicesManager
-import java.time.Instant
+import com.example.werewolf.presentation.theme.WerewolfTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
+object ViewModelHolder {
+    lateinit var heartRateViewModel: HeartRateViewModel
+}
 
 class MainActivity : ComponentActivity() {
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
+
+        ViewModelHolder.heartRateViewModel = ViewModelProvider(this)[HeartRateViewModel::class.java]
+
 
         super.onCreate(savedInstanceState)
 
@@ -120,14 +93,51 @@ class MainActivity : ComponentActivity() {
 }
 
 class PassiveDataService : PassiveListenerService() {
+    private val heartRateViewModel: HeartRateViewModel by lazy {
+        ViewModelHolder.heartRateViewModel
+    }
+
+    private var heartRateAverage = 0
+
     override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
+        var sum = 0
+        val count = dataPoints.sampleDataPoints.size
         for (dataPoint in dataPoints.sampleDataPoints) {
-            val heartRate = dataPoint.value
-            Log.i("WearApp", "Received heart rate: $heartRate")
+            val value = dataPoint.value
+            val intValue = when (value) {
+                is Int -> value
+                is Float -> value.toInt()
+                is Double -> value.toInt()
+                is Long -> value.toInt()
+                is Short -> value.toInt()
+                is Byte -> value.toInt()
+                else -> {
+                    Log.e("WearApp", "Unsupported data point value type: ${value::class.simpleName}")
+                    continue
+                }
+            }
+            sum += intValue
+        }
+        heartRateAverage = sum / count
+
+        // Update ViewModel using GlobalScope
+        GlobalScope.launch(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
+                heartRateViewModel.setHeartRateAverage(heartRateAverage)
+            }
         }
     }
+
 }
 
+class HeartRateViewModel : ViewModel() {
+    private val _heartRateAverage = MutableLiveData<Int>()
+    val heartRateAverage: LiveData<Int> get() = _heartRateAverage
+
+    fun setHeartRateAverage(average: Int) {
+        _heartRateAverage.value = average
+    }
+}
 
 @Composable
 fun WearApp() {
@@ -145,7 +155,6 @@ fun WearApp() {
                            Log.i("Click", "childState: $childState")},
             contentAlignment = Alignment.Center
         ) {
-
             if(childState == 0){
                 PetScreen(modifier = Modifier)
             } else if (childState == 1){
