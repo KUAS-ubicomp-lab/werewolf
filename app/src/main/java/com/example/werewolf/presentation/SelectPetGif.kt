@@ -2,10 +2,13 @@ package com.example.werewolf.presentation
 
 import com.example.werewolf.R
 
-fun selectPetGif() : Int {
-    val moonPhase = moonPhase()
 
-    val animation = when (moonPhase) {
+
+fun selectPetGif() : Int {
+
+    val moonPhaseCalculator : MoonPhaseCalculator = MoonPhaseCalculator()
+
+    val animation = when (moonPhaseCalculator.moonPhase()) {
         "Waning Crescent" -> R.drawable.fighting_animation
         "Waning Gibbous" -> R.drawable.lost
         "Waxing Gibbous" -> R.drawable.won1

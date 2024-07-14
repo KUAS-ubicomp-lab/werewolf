@@ -6,6 +6,10 @@
 
 package com.example.werewolf.presentation
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -23,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.PassiveListenerService
@@ -33,15 +38,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.wear.compose.material.MaterialTheme
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.example.healthserviceslearn.presentation.HealthServicesManager
 import com.example.werewolf.presentation.theme.WerewolfTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 object ViewModelHolder {
-    lateinit var heartRateViewModel: HeartRateViewModel
+    lateinit var stepsViewModel: StepsViewModel
 }
 
 class MainActivity : ComponentActivity() {
@@ -51,8 +61,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
-        ViewModelHolder.heartRateViewModel = ViewModelProvider(this)[HeartRateViewModel::class.java]
+        val moonPhaseCalculator = MoonPhaseCalculator()
 
+        ViewModelHolder.stepsViewModel = ViewModelProvider(this)[StepsViewModel::class.java]
 
         super.onCreate(savedInstanceState)
 
@@ -71,10 +82,8 @@ class MainActivity : ComponentActivity() {
             }
 
         lifecycleScope.launch {
-            val hasHeartRateCapability = healthServicesManager.hasHeartRateCapability()
-            Log.i("WearApp", "hasHeartRateCapability: $hasHeartRateCapability")
-            if (hasHeartRateCapability) {
-                healthServicesManager.registerForHeartRateData()
+            if(healthServicesManager.hasStepsCapability()){
+                healthServicesManager.registerForData()
             }
         }
 
@@ -88,21 +97,21 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         permissionLauncher.launch(android.Manifest.permission.BODY_SENSORS)
+        permissionLauncher.launch(android.Manifest.permission.ACTIVITY_RECOGNITION)
         permissionLauncher.launch(android.Manifest.permission.BODY_SENSORS_BACKGROUND)
     }
 }
 
 class PassiveDataService : PassiveListenerService() {
-    private val heartRateViewModel: HeartRateViewModel by lazy {
-        ViewModelHolder.heartRateViewModel
+
+    private val stepsViewModel : StepsViewModel by lazy {
+        ViewModelHolder.stepsViewModel
     }
 
-    private var heartRateAverage = 0
-
     override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
-        var sum = 0
-        val count = dataPoints.sampleDataPoints.size
-        for (dataPoint in dataPoints.sampleDataPoints) {
+        var steps = 0;
+        for (dataPoint in dataPoints.intervalDataPoints) {
+            Log.i("WearApp", "Interval data point: ${dataPoint.value}")
             val value = dataPoint.value
             val intValue = when (value) {
                 is Int -> value
@@ -112,32 +121,37 @@ class PassiveDataService : PassiveListenerService() {
                 is Short -> value.toInt()
                 is Byte -> value.toInt()
                 else -> {
-                    Log.e("WearApp", "Unsupported data point value type: ${value::class.simpleName}")
+                    Log.e(
+                        "WearApp",
+                        "Unsupported data point value type: ${value::class.simpleName}"
+                    )
                     continue
                 }
             }
-            sum += intValue
+            steps += intValue;
         }
-        heartRateAverage = sum / count
 
         // Update ViewModel using GlobalScope
         GlobalScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.Main) {
-                heartRateViewModel.setHeartRateAverage(heartRateAverage)
+                stepsViewModel.setSteps(steps)
             }
         }
     }
 
 }
 
-class HeartRateViewModel : ViewModel() {
-    private val _heartRateAverage = MutableLiveData<Int>()
-    val heartRateAverage: LiveData<Int> get() = _heartRateAverage
+class StepsViewModel : ViewModel() {
+    private val _steps = MutableLiveData<Int>()
+    val steps: LiveData<Int> get() = _steps
 
-    fun setHeartRateAverage(average: Int) {
-        _heartRateAverage.value = average
+    fun setSteps(steps: Int) {
+        _steps.value = steps
     }
 }
+
+
+
 
 @Composable
 fun WearApp() {

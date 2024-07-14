@@ -9,19 +9,17 @@ import com.example.werewolf.presentation.PassiveDataService
 
 class HealthServicesManager(healthServicesClient: HealthServicesClient) {
     private val passiveMonitoringClient = healthServicesClient.passiveMonitoringClient
-    private val dataTypes = setOf(DataType.HEART_RATE_BPM)
+    private val dataTypes = setOf(DataType.HEART_RATE_BPM, DataType.STEPS)
 
-    suspend fun hasHeartRateCapability(): Boolean {
+    suspend fun hasStepsCapability(): Boolean {
         val capabilities = passiveMonitoringClient.getCapabilitiesAsync().await()
-        return (DataType.HEART_RATE_BPM in capabilities.supportedDataTypesPassiveMonitoring)
+        return (DataType.STEPS in capabilities.supportedDataTypesPassiveMonitoring)
     }
 
-    suspend fun registerForHeartRateData() {
+    suspend fun registerForData() {
         val passiveListenerConfig = PassiveListenerConfig.builder()
-            .setDataTypes(dataTypes)
+            .setDataTypes((dataTypes))
             .build()
-
-        Log.i("WearApp", "registering for heart rate data")
 
         passiveMonitoringClient.setPassiveListenerServiceAsync(
             PassiveDataService::class.java,
@@ -29,7 +27,7 @@ class HealthServicesManager(healthServicesClient: HealthServicesClient) {
         ).await()
     }
 
-    suspend fun unregisterForHeartRateData() {
+    suspend fun unregisterForData() {
         passiveMonitoringClient.clearPassiveListenerServiceAsync().await()
     }
 

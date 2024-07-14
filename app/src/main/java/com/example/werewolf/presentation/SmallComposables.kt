@@ -51,20 +51,19 @@ fun DisplayMoonGif(modifier: Modifier){
 }
 
 @Composable
-fun DisplayHealthData(modifier: Modifier, heartRateViewModel: HeartRateViewModel){
-
+fun DisplayHealthData(modifier: Modifier, stepsViewModel: StepsViewModel){
     Text(
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         color = Color.White,
-        text = heartRateViewModel.heartRateAverage.value.toString(),
-        fontWeight = FontWeight.Bold
+        text = "Steps: " + stepsViewModel.steps.value.toString(),
     )
 }
 
 @Composable
 fun DisplayDaysLeft(modifier: Modifier){
-    var selectedText = daysUntilFullMoon().toString() + " Days Remaining"
+    var moonPhaseCalculator : MoonPhaseCalculator = MoonPhaseCalculator()
+    var selectedText = moonPhaseCalculator.daysUntilFullMoon().toString() + " Days Remaining"
 
     Text(
         modifier = modifier.fillMaxWidth(),
@@ -100,14 +99,26 @@ fun DisplayPetGif(
 
 @Composable
 fun MoonPhaseText(modifier: Modifier) {
+    val moonPhaseCalculator : MoonPhaseCalculator = MoonPhaseCalculator()
 
-    var selectedText = moonPhase()
+    var selectedText = moonPhaseCalculator.moonPhase()
 
     Text(
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         color = Color.White,
         text = selectedText,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
+fun HealthDataHeader(modifier: Modifier) {
+    Text(
+        modifier = modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center,
+        color = Color.White,
+        text = "Health Data",
         fontWeight = FontWeight.Bold
     )
 }
