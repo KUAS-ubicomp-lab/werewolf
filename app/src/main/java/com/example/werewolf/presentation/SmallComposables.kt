@@ -52,11 +52,18 @@ fun DisplayMoonGif(modifier: Modifier){
 
 @Composable
 fun DisplayHealthData(modifier: Modifier, stepsViewModel: StepsViewModel){
+
+    val currentSteps = stepsViewModel.steps.value
+    var totalSteps = 0
+    if(currentSteps != null){
+       totalSteps = stepsViewModel.steps.value.toString().toInt() + getSteps();
+    }
+
     Text(
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         color = Color.White,
-        text = "Steps: " + stepsViewModel.steps.value.toString(),
+        text = "Steps: " + totalSteps,
     )
 }
 

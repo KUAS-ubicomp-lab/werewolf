@@ -54,6 +54,8 @@ object ViewModelHolder {
     lateinit var stepsViewModel: StepsViewModel
 }
 
+private var allSteps = 0;
+
 class MainActivity : ComponentActivity() {
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
 
@@ -61,13 +63,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
-        val moonPhaseCalculator = MoonPhaseCalculator()
-
         ViewModelHolder.stepsViewModel = ViewModelProvider(this)[StepsViewModel::class.java]
+
 
         super.onCreate(savedInstanceState)
 
         val healthServicesManager = HealthServicesManager(HealthServices.getClient(this))
+
+        val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
+
+        sharedPref.all.forEach {
+           allSteps += it.value.toString().toInt()
+        }
+
+        Log.i("WearApp", "allSteps: $allSteps")
+
 
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
@@ -100,6 +110,10 @@ class MainActivity : ComponentActivity() {
         permissionLauncher.launch(android.Manifest.permission.ACTIVITY_RECOGNITION)
         permissionLauncher.launch(android.Manifest.permission.BODY_SENSORS_BACKGROUND)
     }
+}
+
+fun getSteps() : Int {
+    return allSteps;
 }
 
 class PassiveDataService : PassiveListenerService() {
@@ -137,12 +151,20 @@ class PassiveDataService : PassiveListenerService() {
                 stepsViewModel.setSteps(steps)
             }
         }
+
+        val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        for (dataPoint in dataPoints.sampleDataPoints) {
+            // Assuming dataPoint.value is a Float representing heart rate
+            editor.putInt("steps${System.currentTimeMillis()}", steps)
+        }
+        editor.apply()
     }
 
 }
 
 class StepsViewModel : ViewModel() {
-    private val _steps = MutableLiveData<Int>()
+    private val _steps = MutableLiveData<Int>(0)
     val steps: LiveData<Int> get() = _steps
 
     fun setSteps(steps: Int) {
