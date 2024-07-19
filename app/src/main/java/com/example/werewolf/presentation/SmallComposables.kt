@@ -1,13 +1,23 @@
 package com.example.werewolf.presentation
 
+import android.graphics.SurfaceTexture
+import android.view.Surface
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -59,12 +69,26 @@ fun DisplayHealthData(modifier: Modifier, stepsViewModel: StepsViewModel){
        totalSteps = stepsViewModel.steps.value.toString().toInt() + getSteps();
     }
 
-    Text(
-        modifier = modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        color = Color.White,
-        text = "Steps: " + totalSteps,
-    )
+    LazyColumn (modifier = modifier.heightIn(max = 100.dp)) {
+        item {
+            HealthDataItem(dataType = "Steps", dataValue = totalSteps)
+        }
+        item {
+            HealthDataItem(dataType = "HR", dataValue = "N/A")
+        }
+        item {
+            HealthDataItem(dataType = "Sleep", dataValue = "N/A")
+        }
+        item {
+            HealthDataItem(dataType = "Distance", dataValue = "N/A")
+        }
+        item {
+            HealthDataItem(dataType = "Calories", dataValue = "N/A")
+        }
+        item {
+            HealthDataItem(dataType = "Distance", dataValue = "N/A")
+        }
+    }
 }
 
 @Composable
@@ -128,4 +152,35 @@ fun HealthDataHeader(modifier: Modifier) {
         text = "Health Data",
         fontWeight = FontWeight.Bold
     )
+}
+
+@Composable
+fun HealthDataItem(dataType: String, dataValue: Any) {
+    Box(
+        modifier = Modifier
+            .width(170.dp)
+            .padding(2.dp)
+            .border(1.dp, Color.White, shape = RoundedCornerShape(8.dp)) // Add rounded border
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp), // Padding inside the border
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "$dataType",
+                color = Color.White,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Start
+            )
+            Text(
+                text = "$dataValue",
+                color = Color.White,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.End
+            )
+        }
+    }
 }

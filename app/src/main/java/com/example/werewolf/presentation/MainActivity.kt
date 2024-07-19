@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.DataPointContainer
@@ -60,11 +61,24 @@ class MainActivity : ComponentActivity() {
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
 
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
         ViewModelHolder.stepsViewModel = ViewModelProvider(this)[StepsViewModel::class.java]
 
+//        val task = ActivityRecognition.getClient(context)
+//            .requestSleepSegmentUpdates(
+//                pendingIntent,
+//                SleepSegmentRequest.getDefaultSleepSegmentRequest())
+//            .addOnSuccessListener {
+//                viewModel.updateSubscribedToSleepData(true)
+//                Log.d(TAG, "Successfully subscribed to sleep data.")
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.d(TAG, "Exception when subscribing to sleep data: $exception")
+//            }
 
         super.onCreate(savedInstanceState)
 
