@@ -61,12 +61,13 @@ fun DisplayMoonGif(modifier: Modifier){
 }
 
 @Composable
-fun DisplayHealthData(modifier: Modifier, stepsViewModel: StepsViewModel){
+fun DisplayHealthData(modifier: Modifier, healthViewModel: HealthViewModel){
 
-    val currentSteps = stepsViewModel.steps.value
+    val currentSteps = healthViewModel.steps.value
+    val currentSleep = healthViewModel.sleep.value
     var totalSteps = 0
     if(currentSteps != null){
-       totalSteps = stepsViewModel.steps.value.toString().toInt() + getSteps();
+       totalSteps = healthViewModel.steps.value.toString().toInt() + getSteps();
     }
 
     LazyColumn (modifier = modifier.heightIn(max = 100.dp)) {
@@ -77,7 +78,9 @@ fun DisplayHealthData(modifier: Modifier, stepsViewModel: StepsViewModel){
             HealthDataItem(dataType = "HR", dataValue = "N/A")
         }
         item {
-            HealthDataItem(dataType = "Sleep", dataValue = "N/A")
+            if (currentSleep != null) {
+                HealthDataItem(dataType = "Sleep", dataValue = currentSleep)
+            }
         }
         item {
             HealthDataItem(dataType = "Distance", dataValue = "N/A")

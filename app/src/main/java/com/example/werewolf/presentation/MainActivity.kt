@@ -6,10 +6,8 @@
 
 package com.example.werewolf.presentation
 
-import android.content.BroadcastReceiver
+
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -27,32 +25,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.DataPointContainer
+import androidx.health.services.client.data.UserActivityInfo
+import androidx.health.services.client.data.UserActivityState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.wear.compose.material.MaterialTheme
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.Worker
-import androidx.work.WorkerParameters
 import com.example.healthserviceslearn.presentation.HealthServicesManager
 import com.example.werewolf.presentation.theme.WerewolfTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.time.Instant
 
 object ViewModelHolder {
-    lateinit var stepsViewModel: StepsViewModel
+    lateinit var healthViewModel: HealthViewModel
 }
 
 private var allSteps = 0;
@@ -61,24 +55,10 @@ class MainActivity : ComponentActivity() {
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
 
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
-        ViewModelHolder.stepsViewModel = ViewModelProvider(this)[StepsViewModel::class.java]
-
-//        val task = ActivityRecognition.getClient(context)
-//            .requestSleepSegmentUpdates(
-//                pendingIntent,
-//                SleepSegmentRequest.getDefaultSleepSegmentRequest())
-//            .addOnSuccessListener {
-//                viewModel.updateSubscribedToSleepData(true)
-//                Log.d(TAG, "Successfully subscribed to sleep data.")
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.d(TAG, "Exception when subscribing to sleep data: $exception")
-//            }
+        ViewModelHolder.healthViewModel = ViewModelProvider(this)[HealthViewModel::class.java]
 
         super.onCreate(savedInstanceState)
 
@@ -132,8 +112,21 @@ fun getSteps() : Int {
 
 class PassiveDataService : PassiveListenerService() {
 
-    private val stepsViewModel : StepsViewModel by lazy {
-        ViewModelHolder.stepsViewModel
+    private val healthViewModel : HealthViewModel by lazy {
+        ViewModelHolder.healthViewModel
+    }
+
+    override fun onUserActivityInfoReceived(info: UserActivityInfo) {
+
+        val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        val stateChangeTime: Instant = info.stateChangeTime // may be in the past!
+        val userActivityState: UserActivityState = info.userActivityState
+        if (userActivityState == UserActivityState.USER_ACTIVITY_ASLEEP) {
+            editor.putLong("sleep_start", System.currentTimeMillis()).apply()
+        } else {
+            editor.putLong("sleep_end", System.currentTimeMillis()).apply()
+        }
     }
 
     override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
@@ -162,31 +155,36 @@ class PassiveDataService : PassiveListenerService() {
         // Update ViewModel using GlobalScope
         GlobalScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.Main) {
-                stepsViewModel.setSteps(steps)
+                healthViewModel.setSteps(steps)
             }
         }
 
         val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
         for (dataPoint in dataPoints.sampleDataPoints) {
-            // Assuming dataPoint.value is a Float representing heart rate
             editor.putInt("steps${System.currentTimeMillis()}", steps)
         }
         editor.apply()
+
+
     }
 
 }
 
-class StepsViewModel : ViewModel() {
+class HealthViewModel : ViewModel() {
     private val _steps = MutableLiveData<Int>(0)
+    private val _sleep = MutableLiveData<Long>(0)
     val steps: LiveData<Int> get() = _steps
+    val sleep: LiveData<Long> get() = _sleep
 
     fun setSteps(steps: Int) {
         _steps.value = steps
     }
+
+    fun setSleep(sleep: Long) {
+        _sleep.value = sleep
+    }
 }
-
-
 
 
 @Composable

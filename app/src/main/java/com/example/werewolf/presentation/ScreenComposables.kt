@@ -67,6 +67,6 @@ fun HealthScreen(modifier: Modifier){
             .offset(0.dp, 40.dp))
         DisplayHealthData(modifier = Modifier
             .align(Alignment.BottomCenter)
-            .offset(0.dp, -20.dp), stepsViewModel = ViewModelHolder.stepsViewModel)
+            .offset(0.dp, -20.dp), healthViewModel = ViewModelHolder.healthViewModel)
     }
 }
