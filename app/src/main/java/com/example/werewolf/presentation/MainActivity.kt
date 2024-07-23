@@ -44,6 +44,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
+import java.time.ZoneId
 
 object ViewModelHolder {
     lateinit var healthViewModel: HealthViewModel
@@ -66,11 +67,9 @@ class MainActivity : ComponentActivity() {
 
         val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
 
-        sharedPref.all.forEach {
-           allSteps += it.value.toString().toInt()
-        }
+        processHealthData(sharedPref)
 
-        Log.i("WearApp", "allSteps: $allSteps")
+        Log.i("WearApp", "Steps: " + getSteps())
 
 
         permissionLauncher =
@@ -106,9 +105,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun getSteps() : Int {
-    return allSteps;
-}
+//fun getSteps() : Int {
+//    return allSteps;
+//}
 
 class PassiveDataService : PassiveListenerService() {
 
@@ -122,10 +121,22 @@ class PassiveDataService : PassiveListenerService() {
         val editor = sharedPref.edit()
         val stateChangeTime: Instant = info.stateChangeTime // may be in the past!
         val userActivityState: UserActivityState = info.userActivityState
+
+        val instant = Instant.now()
+        val zonedDateTime = instant.atZone(ZoneId.systemDefault())
+        val year = zonedDateTime.getYear().toString()
+        val month = zonedDateTime.getMonthValue().toString()
+        val day = zonedDateTime.getDayOfMonth().toString()
+        val dateString = "$year-$month-$day"
+        val hour = zonedDateTime.hour.toString()
+        val minute = zonedDateTime.minute.toString()
+        val timeString = "$hour:$minute"
+
         if (userActivityState == UserActivityState.USER_ACTIVITY_ASLEEP) {
-            editor.putLong("sleep_start", System.currentTimeMillis()).apply()
+            editor.putStringSet("sleep_start", setOf(dateString, timeString)).apply()
+
         } else {
-            editor.putLong("sleep_end", System.currentTimeMillis()).apply()
+            editor.putStringSet("sleep_start", setOf(dateString, timeString)).apply()
         }
     }
 
@@ -164,8 +175,8 @@ class PassiveDataService : PassiveListenerService() {
         for (dataPoint in dataPoints.sampleDataPoints) {
             editor.putInt("steps${System.currentTimeMillis()}", steps)
         }
+        editor.clear()
         editor.apply()
-
 
     }
 
@@ -173,15 +184,15 @@ class PassiveDataService : PassiveListenerService() {
 
 class HealthViewModel : ViewModel() {
     private val _steps = MutableLiveData<Int>(0)
-    private val _sleep = MutableLiveData<Long>(0)
+    private val _sleep = MutableLiveData<Int>(0)
     val steps: LiveData<Int> get() = _steps
-    val sleep: LiveData<Long> get() = _sleep
+    val sleep: LiveData<Int> get() = _sleep
 
     fun setSteps(steps: Int) {
         _steps.value = steps
     }
 
-    fun setSleep(sleep: Long) {
+    fun setSleep(sleep: Int) {
         _sleep.value = sleep
     }
 }
