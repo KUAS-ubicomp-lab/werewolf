@@ -38,6 +38,11 @@ fun processHealthData(sharedPref: SharedPreferences) {
 //                Log.e("WearApp", "Sleep value is not a string set")
 //            }
         }
+
+        if(stepRecords > 0){
+            allSteps /= stepRecords
+        }
+
     }
 
 //    for (day in sleepMap.keys) {
@@ -54,9 +59,7 @@ fun processHealthData(sharedPref: SharedPreferences) {
 //        }
 //    }
 
-    if(stepRecords > 0){
-        allSteps /= stepRecords
-    }
+
 }
 
 fun getSteps(): Int {

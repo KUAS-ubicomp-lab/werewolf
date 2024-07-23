@@ -27,24 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.health.services.client.HealthServices
-import androidx.health.services.client.PassiveListenerService
-import androidx.health.services.client.data.DataPointContainer
-import androidx.health.services.client.data.UserActivityInfo
-import androidx.health.services.client.data.UserActivityState
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.wear.compose.material.MaterialTheme
 import com.example.healthserviceslearn.presentation.HealthServicesManager
 import com.example.werewolf.presentation.theme.WerewolfTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.time.Instant
-import java.time.ZoneId
 
 object ViewModelHolder {
     lateinit var healthViewModel: HealthViewModel
@@ -59,18 +47,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
-        ViewModelHolder.healthViewModel = ViewModelProvider(this)[HealthViewModel::class.java]
-
         super.onCreate(savedInstanceState)
+
+        ViewModelHolder.healthViewModel = ViewModelProvider(this)[HealthViewModel::class.java]
 
         val healthServicesManager = HealthServicesManager(HealthServices.getClient(this))
 
         val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
-
-        processHealthData(sharedPref)
-
-        Log.i("WearApp", "Steps: " + getSteps())
-
 
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
@@ -90,6 +73,9 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        processHealthData(sharedPref)
+        Log.i("WearApp", "Steps: " + getSteps())
+
         setTheme(android.R.style.Theme_DeviceDefault)
 
         setContent {
@@ -105,103 +91,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-//fun getSteps() : Int {
-//    return allSteps;
-//}
-
-class PassiveDataService : PassiveListenerService() {
-
-    private val healthViewModel : HealthViewModel by lazy {
-        ViewModelHolder.healthViewModel
-    }
-
-    override fun onUserActivityInfoReceived(info: UserActivityInfo) {
-
-        val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-        val stateChangeTime: Instant = info.stateChangeTime // may be in the past!
-        val userActivityState: UserActivityState = info.userActivityState
-
-        val instant = Instant.now()
-        val zonedDateTime = instant.atZone(ZoneId.systemDefault())
-        val year = zonedDateTime.getYear().toString()
-        val month = zonedDateTime.getMonthValue().toString()
-        val day = zonedDateTime.getDayOfMonth().toString()
-        val dateString = "$year-$month-$day"
-        val hour = zonedDateTime.hour.toString()
-        val minute = zonedDateTime.minute.toString()
-        val timeString = "$hour:$minute"
-
-        if (userActivityState == UserActivityState.USER_ACTIVITY_ASLEEP) {
-            editor.putStringSet("sleep_start", setOf(dateString, timeString)).apply()
-
-        } else {
-            editor.putStringSet("sleep_start", setOf(dateString, timeString)).apply()
-        }
-    }
-
-    override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
-        var steps = 0;
-        for (dataPoint in dataPoints.intervalDataPoints) {
-            Log.i("WearApp", "Interval data point: ${dataPoint.value}")
-            val value = dataPoint.value
-            val intValue = when (value) {
-                is Int -> value
-                is Float -> value.toInt()
-                is Double -> value.toInt()
-                is Long -> value.toInt()
-                is Short -> value.toInt()
-                is Byte -> value.toInt()
-                else -> {
-                    Log.e(
-                        "WearApp",
-                        "Unsupported data point value type: ${value::class.simpleName}"
-                    )
-                    continue
-                }
-            }
-            steps += intValue;
-        }
-
-        // Update ViewModel using GlobalScope
-        GlobalScope.launch(Dispatchers.Main) {
-            withContext(Dispatchers.Main) {
-                healthViewModel.setSteps(steps)
-            }
-        }
-
-        val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-        for (dataPoint in dataPoints.sampleDataPoints) {
-            editor.putInt("steps${System.currentTimeMillis()}", steps)
-        }
-        editor.clear()
-        editor.apply()
-
-    }
-
-}
-
-class HealthViewModel : ViewModel() {
-    private val _steps = MutableLiveData<Int>(0)
-    private val _sleep = MutableLiveData<Int>(0)
-    val steps: LiveData<Int> get() = _steps
-    val sleep: LiveData<Int> get() = _sleep
-
-    fun setSteps(steps: Int) {
-        _steps.value = steps
-    }
-
-    fun setSleep(sleep: Int) {
-        _sleep.value = sleep
-    }
-}
-
 
 @Composable
 fun WearApp() {
     var childState by remember { mutableIntStateOf(0) }
-
     WerewolfTheme {
         Box(
             modifier = Modifier
@@ -223,7 +116,6 @@ fun WearApp() {
             }
         }
     }
-
 }
 
 
