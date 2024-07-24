@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
         val healthServicesManager = HealthServicesManager(HealthServices.getClient(this))
 
-        val sharedPref = getSharedPreferences("step_data", Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences("steps_data", Context.MODE_PRIVATE)
 
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->

@@ -52,7 +52,7 @@ class PassiveDataService : PassiveListenerService() {
         GlobalScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.Main) {
                 healthViewModel.setSteps(steps)
-                healthViewModel.setDailySteps(processStepData(sharedPref = getSharedPreferences("step_data", Context.MODE_PRIVATE)))
+                healthViewModel.setDailySteps(processStepData(sharedPref = getSharedPreferences("steps_data", Context.MODE_PRIVATE)))
             }
         }
     }
