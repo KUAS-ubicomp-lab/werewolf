@@ -21,19 +21,21 @@ class PassiveDataService : PassiveListenerService() {
 
 
     override fun onUserActivityInfoReceived(info: UserActivityInfo) {
-        val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences("sleep_data", Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
         val userActivityState: UserActivityState = info.userActivityState
         if (userActivityState == UserActivityState.USER_ACTIVITY_ASLEEP) {
-            editor.putStringSet("sleep_start", setOf(formattedDate(), formattedTime())).apply()
+//            editor.putStringSet("sleep_start", setOf(formattedDate(), formattedTime())).apply()
 
         } else {
-            editor.putStringSet("sleep_start", setOf(formattedDate(), formattedTime())).apply()
+//            editor.putStringSet("sleep_start", setOf(formattedDate(), formattedTime())).apply()
         }
     }
 
     override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
         var steps = 0;
+        val sharedPref = getSharedPreferences("steps_data", Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
         for (dataPoint in dataPoints.intervalDataPoints) {
             Log.i("WearApp", "Interval data point: ${dataPoint.value}")
             val value = dataPoint.value
@@ -43,17 +45,14 @@ class PassiveDataService : PassiveListenerService() {
                 Log.e("WearApp", "Step value is not an integer.")
             }
         }
-        val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-        for (dataPoint in dataPoints.sampleDataPoints) {
-            editor.putInt("steps${System.currentTimeMillis()}", steps)
-        }
+        editor.putInt("steps${formattedDate()}", steps)
         editor.apply()
 
         // Update ViewModel using GlobalScope
         GlobalScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.Main) {
                 healthViewModel.setSteps(steps)
+                healthViewModel.setDailySteps(processStepData(sharedPref = getSharedPreferences("step_data", Context.MODE_PRIVATE)))
             }
         }
     }

@@ -38,11 +38,8 @@ object ViewModelHolder {
     lateinit var healthViewModel: HealthViewModel
 }
 
-private var allSteps = 0;
-
 class MainActivity : ComponentActivity() {
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -53,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
         val healthServicesManager = HealthServicesManager(HealthServices.getClient(this))
 
-        val sharedPref = getSharedPreferences("health_data", Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences("step_data", Context.MODE_PRIVATE)
 
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
@@ -73,8 +70,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        processHealthData(sharedPref)
-        Log.i("WearApp", "Steps: " + getSteps())
+
+        Log.i("WearApp", "Steps: " + processStepData(sharedPref))
 
         setTheme(android.R.style.Theme_DeviceDefault)
 
