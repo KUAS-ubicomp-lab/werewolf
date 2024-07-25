@@ -21,23 +21,39 @@ class PassiveDataService : PassiveListenerService() {
 
 
     override fun onUserActivityInfoReceived(info: UserActivityInfo) {
-        val sharedPref = getSharedPreferences("sleep_data", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
+        Log.i("WearApp", "Receiving Sleep Data")
+
+        val sleepData = getSharedPreferences("sleep_data", Context.MODE_PRIVATE)
+        val sleepEditor = sleepData.edit()
+        val countData = getSharedPreferences("counter_data", Context.MODE_PRIVATE)
+        val counterEditor = countData.edit()
+
         val userActivityState: UserActivityState = info.userActivityState
         if (userActivityState == UserActivityState.USER_ACTIVITY_ASLEEP) {
-//            editor.putStringSet("sleep_start", setOf(formattedDate(), formattedTime())).apply()
-
+            if(sleepData.getString("sleep_start${formattedDate()}0", "") == ""){
+                counterEditor.putInt("start", 0).apply()
+                sleepEditor.putString("sleep_start${formattedDate()}0", formattedTime()).apply()
+            } else {
+                counterEditor.putInt("start", countData.getInt("start", 0) + 1).apply()
+                sleepEditor.putString("sleep_start${formattedDate()}${countData.getInt("start", 0)}", formattedTime()).apply()
+            }
         } else {
-//            editor.putStringSet("sleep_start", setOf(formattedDate(), formattedTime())).apply()
+            if(sleepData.getString("sleep_end${formattedDate()}0", "") == ""){
+                counterEditor.putInt("end", 0).apply()
+                sleepEditor.putString("sleep_end${formattedDate()}0", formattedTime()).apply()
+            } else {
+                counterEditor.putInt("end", countData.getInt("end", 0) + 1).apply()
+                sleepEditor.putString("sleep_end${formattedDate()}${countData.getInt("end", 0)}", formattedTime()).apply()
+            }
         }
     }
 
     override fun onNewDataPointsReceived(dataPoints: DataPointContainer) {
+        Log.i("WearApp", "Receiving Step Data")
         var steps = 0;
         val sharedPref = getSharedPreferences("steps_data", Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
         for (dataPoint in dataPoints.intervalDataPoints) {
-            Log.i("WearApp", "Interval data point: ${dataPoint.value}")
             val value = dataPoint.value
             if(value is Long){
                 steps = value.toInt()

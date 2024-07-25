@@ -48,9 +48,27 @@ class MainActivity : ComponentActivity() {
 
         ViewModelHolder.healthViewModel = ViewModelProvider(this)[HealthViewModel::class.java]
 
+        val healthViewModel : HealthViewModel by lazy {
+            ViewModelHolder.healthViewModel
+        }
+
+
+
         val healthServicesManager = HealthServicesManager(HealthServices.getClient(this))
 
-        val sharedPref = getSharedPreferences("steps_data", Context.MODE_PRIVATE)
+        val stepsData = getSharedPreferences("steps_data", Context.MODE_PRIVATE)
+        val counterData = getSharedPreferences("counter_data", Context.MODE_PRIVATE)
+        val counterEditor = counterData.edit()
+        val sleepData = getSharedPreferences("sleep_data", Context.MODE_PRIVATE)
+
+        healthViewModel.setDailySteps(processStepData(stepsData))
+        healthViewModel.setSteps(stepsData.getInt("steps${formattedDate()}", 0))
+
+        if(sleepData.getString("sleep_start${formattedDate()}0", "") == ""
+            && sleepData.getString("sleep_end${formattedDate()}0", "") == "") {
+            counterEditor.putInt("start", 0).apply()
+            counterEditor.putInt("end", 0).apply()
+        }
 
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
@@ -69,9 +87,6 @@ class MainActivity : ComponentActivity() {
                 healthServicesManager.registerForData()
             }
         }
-
-
-        Log.i("WearApp", "Steps: " + processStepData(sharedPref))
 
         setTheme(android.R.style.Theme_DeviceDefault)
 
