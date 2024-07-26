@@ -7,11 +7,14 @@ import dev.jamesyox.kastro.luna.LunarPhase
 import dev.jamesyox.kastro.luna.LunarPhaseSequence
 import dev.jamesyox.kastro.luna.calculateLunarState
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toJavaZoneId
 import kotlinx.datetime.toKotlinInstant
 import kotlinx.datetime.toLocalDateTime
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlin.time.Duration.Companion.days
 
 class MoonPhaseCalculator {
@@ -50,13 +53,9 @@ class MoonPhaseCalculator {
     }
 
     fun daysUntilFullMoon() : Int {
-
         val nextFullMoon = getMoonSequence().get(0)
-
         val fullMoonInstant = nextFullMoon.time
-
         val duration = fullMoonInstant - beginInstant
-
         return duration.inWholeDays.toInt()
     }
 
@@ -69,5 +68,23 @@ class MoonPhaseCalculator {
             limit = 30.days
         ).toList()
     }
+
+    fun getLastFullMoon() : Instant {
+        val oneMonthAgo = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault())
+            .minusMonths(1)
+            .toInstant().toKotlinInstant()
+
+        val moonSequence = LunarEventSequence(
+            start = oneMonthAgo,
+            latitude = 35.0,
+            longitude = 135.0,
+            requestedLunarEvents = listOf(LunarEvent.PhaseEvent.FullMoon),
+            limit = 30.days
+        ).toList()
+
+        return moonSequence.get(0).time.toJavaInstant()
+    }
+
+
 }
 

@@ -30,20 +30,20 @@ class PassiveDataService : PassiveListenerService() {
 
         val userActivityState: UserActivityState = info.userActivityState
         if (userActivityState == UserActivityState.USER_ACTIVITY_ASLEEP) {
-            if(sleepData.getString("sleep_start${formattedDate()}0", "") == ""){
+            if(sleepData.getString("sleep_start${formattedDate(Instant.now())}0", "") == ""){
                 counterEditor.putInt("start", 0).apply()
-                sleepEditor.putString("sleep_start${formattedDate()}0", formattedTime()).apply()
+                sleepEditor.putString("sleep_start${formattedDate(Instant.now())}0", formattedTime(Instant.now())).apply()
             } else {
                 counterEditor.putInt("start", countData.getInt("start", 0) + 1).apply()
-                sleepEditor.putString("sleep_start${formattedDate()}${countData.getInt("start", 0)}", formattedTime()).apply()
+                sleepEditor.putString("sleep_start${formattedDate(Instant.now())}${countData.getInt("start", 0)}", formattedTime(Instant.now())).apply()
             }
         } else {
-            if(sleepData.getString("sleep_end${formattedDate()}0", "") == ""){
+            if(sleepData.getString("sleep_end${formattedDate(Instant.now())}0", "") == ""){
                 counterEditor.putInt("end", 0).apply()
-                sleepEditor.putString("sleep_end${formattedDate()}0", formattedTime()).apply()
+                sleepEditor.putString("sleep_end${formattedDate(Instant.now())}0", formattedTime(Instant.now())).apply()
             } else {
                 counterEditor.putInt("end", countData.getInt("end", 0) + 1).apply()
-                sleepEditor.putString("sleep_end${formattedDate()}${countData.getInt("end", 0)}", formattedTime()).apply()
+                sleepEditor.putString("sleep_end${formattedDate(Instant.now())}${countData.getInt("end", 0)}", formattedTime(Instant.now())).apply()
             }
         }
     }
@@ -61,7 +61,7 @@ class PassiveDataService : PassiveListenerService() {
                 Log.e("WearApp", "Step value is not an integer.")
             }
         }
-        editor.putInt("steps${formattedDate()}", steps)
+        editor.putInt("steps${formattedDate(Instant.now())}", steps)
         editor.apply()
 
         // Update ViewModel using GlobalScope

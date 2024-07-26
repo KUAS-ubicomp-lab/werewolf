@@ -33,6 +33,7 @@ import androidx.wear.compose.material.MaterialTheme
 import com.example.healthserviceslearn.presentation.HealthServicesManager
 import com.example.werewolf.presentation.theme.WerewolfTheme
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 object ViewModelHolder {
     lateinit var healthViewModel: HealthViewModel
@@ -53,7 +54,6 @@ class MainActivity : ComponentActivity() {
         }
 
 
-
         val healthServicesManager = HealthServicesManager(HealthServices.getClient(this))
 
         val stepsData = getSharedPreferences("steps_data", Context.MODE_PRIVATE)
@@ -62,14 +62,19 @@ class MainActivity : ComponentActivity() {
         val sleepData = getSharedPreferences("sleep_data", Context.MODE_PRIVATE)
 
         healthViewModel.setDailySteps(processStepData(stepsData))
-        healthViewModel.setSteps(stepsData.getInt("steps${formattedDate()}", 0))
+        healthViewModel.setSteps(stepsData.getInt("steps${formattedDate(Instant.now())}", 0))
 
-        if(sleepData.getString("sleep_start${formattedDate()}0", "") == ""
-            && sleepData.getString("sleep_end${formattedDate()}0", "") == "") {
+        if(sleepData.getString("sleep_start${formattedDate(Instant.now())}0", "") == ""
+            && sleepData.getString("sleep_end${formattedDate(Instant.now())}0", "") == "") {
             counterEditor.putInt("start", 0).apply()
             counterEditor.putInt("end", 0).apply()
         }
 
+        val moonPhaseCalculator = MoonPhaseCalculator()
+
+        for (days in getDaysSinceLastFullMoon()){
+            Log.i("Days", days)
+        }
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
                 when (result) {

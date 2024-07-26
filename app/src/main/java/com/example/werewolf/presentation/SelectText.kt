@@ -12,7 +12,6 @@ fun selectText(selection: Int) : String {
         if( moonPhaseCalculator.moonPhase() == "Full Moon"){
             return "Fight!"
         }else{
-            Log.d("TAG","hello2!")
             return moonPhaseCalculator.daysUntilFullMoon().toString() + " Days Remaining"
         }
     } else {

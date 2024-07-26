@@ -4,8 +4,7 @@ import java.time.Instant
 import java.time.ZoneId
 
 //Gets an date in the format needed for the app.
-fun formattedDate() : String{
-    val instant = Instant.now()
+fun formattedDate(instant : Instant) : String{
     val zonedDateTime = instant.atZone(ZoneId.systemDefault())
     val year = zonedDateTime.getYear().toString()
     val month = zonedDateTime.getMonthValue().toString()
@@ -15,7 +14,7 @@ fun formattedDate() : String{
 }
 
 //Gets a time in the format needed for the app
-fun formattedTime() : String{
+fun formattedTime(instant : Instant) : String{
     val instant = Instant.now()
     val zonedDateTime = instant.atZone(ZoneId.systemDefault())
     val hour = zonedDateTime.hour.toString()
