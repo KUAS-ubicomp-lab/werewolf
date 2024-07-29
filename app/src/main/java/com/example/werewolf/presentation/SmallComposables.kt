@@ -67,7 +67,7 @@ fun DisplayHealthData(modifier: Modifier, healthViewModel: HealthViewModel){
         }
         item {
             if (currentSleep != null) {
-                HealthDataItem(dataType = "Sleep", dataValue = currentSleep)
+                HealthDataItem(dataType = "Average Sleep", dataValue = currentSleep)
             }
         }
         item {
@@ -75,9 +75,6 @@ fun DisplayHealthData(modifier: Modifier, healthViewModel: HealthViewModel){
         }
         item {
             HealthDataItem(dataType = "Calories", dataValue = "N/A")
-        }
-        item {
-            HealthDataItem(dataType = "Distance", dataValue = "N/A")
         }
     }
 }

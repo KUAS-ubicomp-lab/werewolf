@@ -17,9 +17,18 @@ fun formattedDate(instant : Instant) : String{
 fun formattedTime(instant : Instant) : String{
     val instant = Instant.now()
     val zonedDateTime = instant.atZone(ZoneId.systemDefault())
-    val hour = zonedDateTime.hour.toString()
-    val minute = zonedDateTime.minute.toString()
-    val second = zonedDateTime.second.toString()
+    var hour = zonedDateTime.hour.toString()
+    if(hour.length == 1){
+        hour = "0$hour"
+    }
+    var minute = zonedDateTime.minute.toString()
+    if(minute.length == 1){
+        minute = "0$minute"
+    }
+    var second = zonedDateTime.second.toString()
+    if(second.length == 1){
+        second = "0$second"
+    }
     val timeString = "$hour:$minute:$second"
     return timeString
 }

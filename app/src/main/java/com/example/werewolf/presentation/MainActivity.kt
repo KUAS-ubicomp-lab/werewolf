@@ -63,6 +63,7 @@ class MainActivity : ComponentActivity() {
 
         healthViewModel.setDailySteps(processStepData(stepsData))
         healthViewModel.setSteps(stepsData.getInt("steps${formattedDate(Instant.now())}", 0))
+        healthViewModel.setSleep(processSleepData(sleepData))
 
         if(sleepData.getString("sleep_start${formattedDate(Instant.now())}0", "") == ""
             && sleepData.getString("sleep_end${formattedDate(Instant.now())}0", "") == "") {
@@ -70,11 +71,8 @@ class MainActivity : ComponentActivity() {
             counterEditor.putInt("end", 0).apply()
         }
 
-        val moonPhaseCalculator = MoonPhaseCalculator()
 
-        for (days in getDaysSinceLastFullMoon()){
-            Log.i("Days", days)
-        }
+
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
                 when (result) {

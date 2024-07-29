@@ -1,10 +1,8 @@
 package com.example.werewolf.presentation
 
-import android.util.Log
 import dev.jamesyox.kastro.luna.LunarEvent
 import dev.jamesyox.kastro.luna.LunarEventSequence
 import dev.jamesyox.kastro.luna.LunarPhase
-import dev.jamesyox.kastro.luna.LunarPhaseSequence
 import dev.jamesyox.kastro.luna.calculateLunarState
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaInstant
